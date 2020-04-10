@@ -1,4 +1,3 @@
-
 Sample {
 	var buffers, <map;
 
@@ -10,7 +9,7 @@ Sample {
 		this.associate(arrows);
 	}
 	load { |paths|
-		buffers = paths.collect { |path| Buffer.read(server, path) };
+		buffers = paths.collect { |path| Buffer.readChannel(Server.default, path, channels: [0]) };
 	}
 	free {
 		buffers.do(_.free);
@@ -29,7 +28,7 @@ Sample {
 	nrtMsg {
 		var msg = Array.newClear(buffers.size + 1);
 		msg[0] = 0.0;
-		buffers.do { |b,i| msg[i+1] = ["/b_allocRead", b.bufnum, b.path] };
+		buffers.do { |b,i| msg[i+1] = ["/b_allocReadChannel", b.bufnum, b.path, 0,-1, 0] };
 		^msg
 	}
 }
