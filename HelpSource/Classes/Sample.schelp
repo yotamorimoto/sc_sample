@@ -27,7 +27,7 @@ x = Sample.celesta;
 SynthDef(\samplay, { |gate=1, buf, rate, amp=1|
 	var sig, env, trig, gRate, pos, dur, pan, ipl;
 	trig = Impulse.kr(~bend.kr.linexp(0,1,5,20));
-	gRate = TChoose.kr(trig, [rate,rate.neg,rate*2,rate*1.5,rate*1.5.neg,rate*0.5]);
+	gRate = BufRateScale.ir(buf)*TChoose.kr(trig, [rate,rate.neg,rate*2,rate*1.5,rate*1.5.neg,rate*0.5]);
 	pos = TRand.kr(0, BufDur.ir(buf)*0.5, trig);
 	dur = ~mod.kr.linexp(0,1,0.1,3);
 	pan = TRand.kr(-1, 1, trig);
@@ -44,41 +44,6 @@ MIDIFunc.noteOn {|v,n|
 MIDIFunc.noteOff {|v,n|~nodes[n].release };
 MIDIFunc.cc {|v| ~mod.set(v/127) };
 MIDIFunc.bend {|v| ~bend.set(v/16380) };
-)
-
-// routine
-(
-a = Scale.phrygian;
-b = Pcb((1.0!50).rand2,0.5,1.01).asStream;
-SynthDef(\samplay, { |gate=1, buf, rate, amp=1|
-	var sig, env, trig, dur, gRate, pos, ipol, pan;
-	ipol = 2;
-	trig = Impulse.kr(10);
-	dur = 3;
-	gRate = TChoose.kr(trig, [rate,rate.neg,rate*2,rate*1.5,rate*1.5.neg,rate*0.5]);
-	pos = TExpRand.kr(0.01, BufDur.ir(buf)*0.5, trig);
-	pan = TRand.kr(-1, 1, trig);
-	sig = TGrains.ar(2, trig, buf, gRate, pos, dur, pan, 1, ipol);
-	env = Env.linen(0,0,dur).kr(2);
-	sig = sig * amp * env;
-	Out.ar(0, sig);
-}).add;
-Routine {
-	var map = x.map;
-	loop {
-		var brown = b.next;
-		var key;
-		[60, 48, 72].do { |base,i|
-			key = a.degrees[(brown[i*10].linlin(-1,1,0,6)).asInt];
-			Synth.grain(\samplay, [
-				buf:  map[key+base][0],
-				rate: map[key+base][1],
-				amp:  brown[i*10+1].linlin(-1,1,-24,0).dbamp
-			]);
-		};
-		1.5.wait;
-	}
-}.play;
 )
 
 // free
