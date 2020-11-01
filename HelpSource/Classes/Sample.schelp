@@ -19,31 +19,42 @@ x = Sample.celesta;
 
 // midi
 (
-~mod.free;
-~bend.free;
-~mod = Bus.control;
-~bend = Bus.control;
 ~nodes = Array.newClear(128);
-SynthDef(\samplay, { |gate=1, buf, rate, amp=1|
-	var sig, env, trig, gRate, pos, dur, pan, ipl;
-	trig = Impulse.kr(~bend.kr.linexp(0,1,5,20));
-	gRate = BufRateScale.ir(buf)*TChoose.kr(trig, [rate,rate.neg,rate*2,rate*1.5,rate*1.5.neg,rate*0.5]);
-	pos = TRand.kr(0, BufDur.ir(buf)*0.5, trig);
-	dur = ~mod.kr.linexp(0,1,0.1,3);
-	pan = TRand.kr(-1, 1, trig);
-	ipl = 4;
-	sig = TGrains.ar(2, trig, buf, gRate, pos, dur, pan, ipl);
-	env = Env.asr.kr(2, gate);
-	sig = sig * amp * env;
-	Out.ar(0, sig);
+SynthDef(\simplay, { |gate=1, buf, rate, amp=1|
+	var sig, env;
+	sig = PlayBuf.ar(1, buf, rate, 1, 1000);
+	env = Env.adsr.kr(2, gate);
+    sig = sig * amp * env;
+	sig = Pan2.ar(sig, Rand(-0.5, 0.5));
+    Out.ar(0, sig);
 }).add;
 MIDIFunc.noteOn {|v,n|
-	var m = x.map[n];
-	~nodes[n] = Synth(\samplay, [buf:m[0], rate:m[1], amp: v.linlin(0,127,-12,0).dbamp]);
+    var m = x.map[n];
+    ~nodes[n] = Synth(\simplay, [buf:m[0], rate:m[1], amp: v.linlin(0,127,-24,-6).dbamp]);
 };
 MIDIFunc.noteOff {|v,n|~nodes[n].release };
-MIDIFunc.cc {|v| ~mod.set(v/127) };
-MIDIFunc.bend {|v| ~bend.set(v/16380) };
+)
+// granular
+(
+~nodes = Array.newClear(128);
+SynthDef(\samplay, { |gate=1, buf, rate, amp=1|
+    var sig, env, trig, gRate, pos, dur, pan, ipl;
+	trig = Impulse.kr(30) + Dust.kr(30);
+    gRate = BufRateScale.ir(buf)*rate;
+	pos = 0.2 + TRand.kr(-0.01, 0.01, trig);
+    dur = 0.07;
+	pan = Rand(-0.7, 0.7) + TRand.kr(-0.1, 0.1, trig);
+    ipl = 4;
+    sig = TGrains.ar(2, trig, buf, gRate, pos, dur, pan, 1, ipl);
+	env = Env.adsr(3, 2, 0.5, 3).kr(2, gate);
+    sig = sig * amp * env;
+    Out.ar(0, sig);
+}).add;
+MIDIFunc.noteOn {|v,n|
+    var m = x.map[n];
+    ~nodes[n] = Synth(\samplay, [buf:m[0], rate:m[1], amp: v.linlin(0,127,-12,-0).dbamp]);
+};
+MIDIFunc.noteOff {|v,n|~nodes[n].release };
 )
 
 // free

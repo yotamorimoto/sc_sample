@@ -9,7 +9,9 @@ Sample {
 		this.associate(arrows);
 	}
 	load { |paths|
-		buffers = paths.collect { |path| Buffer.readChannel(Server.default, path, channels: [0]) };
+		buffers = paths.collect { |path|
+            Buffer.readChannel(Server.default, path, channels: [0])
+        };
 	}
 	free {
 		buffers.do(_.free);
