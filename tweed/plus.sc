@@ -1,10 +1,10 @@
 + Sample {
-	*celesta {
-        var lowest = 65;
+	*tweed {
+        var lowest = 28;
 		var transDown = 4;
 		var transUp = 2;
 		var next = lowest + transDown + transUp + 1;
-        var highest = 107;
+        var highest = 84;
         var n = lowest.series(next, highest);
 		var arrows = n.collect { |in|
 			var v;

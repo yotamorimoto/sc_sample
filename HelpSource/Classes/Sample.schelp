@@ -6,6 +6,7 @@ CLASSMETHODS::
 private:: new
 
 METHOD:: celesta
+METHOD:: tweed
 
 INSTANCEMETHODS::
 private:: load, associate, nrtMsg, map, free
@@ -16,6 +17,8 @@ code::
 MIDIIn.connectAll;
 s.boot;
 x = Sample.celesta;
+// or
+// x = Sample.tweed;
 
 // midi
 (

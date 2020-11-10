@@ -1,10 +1,10 @@
 + Sample {
-	*celesta {
-        var lowest = 65;
+	*felt {
+        var lowest = 21;
 		var transDown = 4;
 		var transUp = 2;
 		var next = lowest + transDown + transUp + 1;
-        var highest = 107;
+        var highest = 98;
         var n = lowest.series(next, highest);
 		var arrows = n.collect { |in|
 			var v;
@@ -15,6 +15,7 @@
 		};
 		var path = thisMethod.filenameSymbol.asString.dirname;
 		var paths = Array.fill(arrows.size, { |i| path +/+ i ++ ".wav" });
+		arrows.printAll;
 		^this.new(paths, arrows);
 	}
 }
