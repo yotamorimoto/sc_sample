@@ -7,6 +7,7 @@ private:: new
 
 METHOD:: celesta
 METHOD:: tweed
+METHOD:: felt
 
 INSTANCEMETHODS::
 private:: load, associate, nrtMsg, map, free
@@ -17,49 +18,98 @@ code::
 MIDIIn.connectAll;
 s.boot;
 x = Sample.celesta;
-// or
-// x = Sample.tweed;
 
-// midi
+// ---------------------- celesta
+// simple
 (
 ~nodes = Array.newClear(128);
 SynthDef(\simplay, { |gate=1, buf, rate, amp=1|
 	var sig, env;
-	sig = PlayBuf.ar(1, buf, rate, 1, 1000);
+	var pos = 1000;
+	sig = PlayBuf.ar(1, buf, BufRateScale.ir(buf)*rate, 1, pos);
 	env = Env.adsr.kr(2, gate);
     sig = sig * amp * env;
 	sig = Pan2.ar(sig, Rand(-0.5, 0.5));
     Out.ar(0, sig);
 }).add;
-MIDIFunc.noteOn {|v,n|
+MIDIFunc.noteOn { |v,n|
     var m = x.map[n];
-    ~nodes[n] = Synth(\simplay, [buf:m[0], rate:m[1], amp: v.linlin(0,127,-24,-6).dbamp]);
+    ~nodes[n] = Synth(\simplay, [buf:m[0], rate:m[1], amp: v.linlin(0,127,-9,3).dbamp]);
 };
-MIDIFunc.noteOff {|v,n|~nodes[n].release };
+MIDIFunc.noteOff { |v,n| ~nodes[n].release };
 )
+
 // granular
 (
 ~nodes = Array.newClear(128);
 SynthDef(\samplay, { |gate=1, buf, rate, amp=1|
     var sig, env, trig, gRate, pos, dur, pan, ipl;
-	trig = Impulse.kr(30) + Dust.kr(30);
+	trig = Impulse.kr(40) + Dust.kr(30);
     gRate = BufRateScale.ir(buf)*rate;
-	pos = 0.2 + TRand.kr(-0.01, 0.01, trig);
-    dur = 0.07;
-	pan = Rand(-0.7, 0.7) + TRand.kr(-0.1, 0.1, trig);
+	pos = 0.05 + TRand.kr(-0.01, 0.01, trig);
+    dur = 0.05;
+	pan = Rand(-0.1, 0.1) + TRand.kr(-0.7, 0.7, trig);
     ipl = 4;
     sig = TGrains.ar(2, trig, buf, gRate, pos, dur, pan, 1, ipl);
-	env = Env.adsr(3, 2, 0.5, 3).kr(2, gate);
+	env = Env.adsr(3,3,0.5,3).kr(2, gate);
     sig = sig * amp * env;
     Out.ar(0, sig);
 }).add;
-MIDIFunc.noteOn {|v,n|
+MIDIFunc.noteOn { |v,n|
     var m = x.map[n];
-    ~nodes[n] = Synth(\samplay, [buf:m[0], rate:m[1], amp: v.linlin(0,127,-12,-0).dbamp]);
+    ~nodes[n] = Synth(\samplay, [buf:m[0], rate:m[1], amp: v.linlin(0,127,-12,0).dbamp]);
 };
-MIDIFunc.noteOff {|v,n|~nodes[n].release };
+MIDIFunc.noteOff { |v,n|~nodes[n].release };
 )
 
 // free
 x.free;
+
+
+// ---------------------- tweed
+x = Sample.tweed;
+
+// simple again
+(
+~nodes = Array.newClear(128);
+SynthDef(\simplay, { |gate=1, buf, rate, amp=1|
+	var sig, env;
+	var pos = 0;
+	sig = PlayBuf.ar(1, buf, BufRateScale.ir(buf)*rate, 1, pos);
+	env = Env.adsr(0,0,3).kr(2, gate);
+    sig = sig * env * amp;
+	sig = Pan2.ar(sig, Rand(-0.1, 0.1));
+    Out.ar(0, sig);
+}).add;
+MIDIFunc.noteOn { |v,n|
+    var m = x.map[n];
+    ~nodes[n] = Synth(\simplay, [buf:m[0], rate:m[1], amp: v.linlin(0,127,3,9).dbamp]);
+};
+MIDIFunc.noteOff { |v,n| ~nodes[n].release };
+)
+
+// free
+x.free;
+
+// ---------------------- felt
+x = Sample.felt;
+
+// simple again
+(
+~nodes = Array.newClear(128);
+SynthDef(\simplay, { |gate=1, buf, rate, amp=1|
+	var sig, env;
+	var pos = 0;
+	sig = PlayBuf.ar(1, buf, BufRateScale.ir(buf)*rate, 1, pos);
+	env = Env.adsr(0,0,3).kr(2, gate);
+    sig = sig * env * amp;
+	sig = Pan2.ar(sig, Rand(-0.7, 0.7));
+    Out.ar(0, sig);
+}).add;
+MIDIFunc.noteOn { |v,n|
+    var m = x.map[n];
+    ~nodes[n] = Synth(\simplay, [buf:m[0], rate:m[1], amp: v.linlin(0,127,-9,6).dbamp]);
+};
+MIDIFunc.noteOff { |v,n| ~nodes[n].release };
+)
 ::
