@@ -1,17 +1,7 @@
 // ======= installation =======
 
-in SuperCollider run:
+// in SuperCollider run:
 
-(
-// 1. create folder
-if(File.exists(Platform.userExtensionDir).not, {
-	File.mkdir(Platform.userExtensionDir);
-});
-)
+Quarks.install("https://github.com/yotamorimoto/sc_sample.git");
 
-// 2. open folder
-Platform.userExtensionDir.openOS;
-
-// 3. place the downloaded folder/files there
-
-// 4. recompile class library (SuperCollider>Menu>Language)
+// recompile class library (SuperCollider>Menu>Language)
